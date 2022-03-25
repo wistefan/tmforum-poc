@@ -21,4 +21,9 @@ public class GeneralProperties {
 	 * Tenant to be used by the tmforum api.
 	 */
 	private String tenant = null;
+
+	/**
+	 * Should every creation request be forwarded to canismajor?
+	 */
+	private boolean cmForwarding= true;
 }

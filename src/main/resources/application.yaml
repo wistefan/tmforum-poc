@@ -19,6 +19,10 @@ micronaut:
         path: ngsi-ld/v1
         url: http://localhost:1026
         read-timeout: 30
+      canis-major:
+        path: /
+        url: http://localhost:4000
+        read-timeout: 30
 
 ---
 endpoints:

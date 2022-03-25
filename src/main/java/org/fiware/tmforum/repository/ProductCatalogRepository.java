@@ -1,10 +1,13 @@
 package org.fiware.tmforum.repository;
 
+import io.micronaut.cache.annotation.CachePut;
 import io.micronaut.http.HttpResponse;
+import org.fiware.canismajor.api.NgsiLdApiClient;
 import org.fiware.ngsi.api.EntitiesApiClient;
 import org.fiware.ngsi.model.EntityListVO;
 import org.fiware.ngsi.model.EntityVO;
 import org.fiware.tmforum.configuration.GeneralProperties;
+import org.fiware.tmforum.domain.CanisMajorMapper;
 import org.fiware.tmforum.domain.EntityMapper;
 import org.fiware.tmforum.domain.TMForumMapper;
 import org.fiware.tmforum.domain.product.BundleProductSpecification;
@@ -35,14 +38,14 @@ public class ProductCatalogRepository extends NgsiLdBaseRepository {
 	private final EntityMapper entityMapper;
 	private final ValidationService validationService;
 
-	public ProductCatalogRepository(GeneralProperties generalProperties, EntitiesApiClient entitiesApi, EntityMapper entityMapper, ValidationService validationService) {
-		super(generalProperties, entitiesApi);
+	public ProductCatalogRepository(GeneralProperties generalProperties, EntitiesApiClient entitiesApi, EntityMapper entityMapper, ValidationService validationService, NgsiLdApiClient canisMajorClient, CanisMajorMapper canisMajorMapper) {
+		super(generalProperties, entitiesApi, canisMajorClient, canisMajorMapper);
 		this.entityMapper = entityMapper;
 		this.validationService = validationService;
 	}
 
 	public void createCatalog(Catalog catalog) {
-		entitiesApi.createEntity(entityMapper.toEntityVO(catalog), generalProperties.getTenant());
+		createEntity(entityMapper.toEntityVO(catalog), generalProperties.getTenant());
 	}
 
 	public void deleteEntry(String id) {
@@ -75,13 +78,13 @@ public class ProductCatalogRepository extends NgsiLdBaseRepository {
 	}
 
 	public Optional<Catalog> getCatalog(String id) {
-		HttpResponse<EntityVO> entityVOHttpResponse = entitiesApi.retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
+		HttpResponse<EntityVO> entityVOHttpResponse = retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
 		return entityVOHttpResponse.getBody().map(entityVO -> entityMapper.fromEntityVO(entityVO, Catalog.class));
 	}
 
 	// category
 	public void createCategory(Category category) {
-		entitiesApi.createEntity(entityMapper.toEntityVO(category), generalProperties.getTenant());
+		createEntity(entityMapper.toEntityVO(category), generalProperties.getTenant());
 	}
 
 	public List<Category> findCategories() {
@@ -110,12 +113,12 @@ public class ProductCatalogRepository extends NgsiLdBaseRepository {
 	}
 
 	public Optional<Category> getCategory(String id) {
-		HttpResponse<EntityVO> entityVOHttpResponse = entitiesApi.retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
+		HttpResponse<EntityVO> entityVOHttpResponse = retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
 		return entityVOHttpResponse.getBody().map(entityVO -> entityMapper.fromEntityVO(entityVO, Category.class));
 	}
 
 	public void createProductOffering(ProductOffering productOffering) {
-		entitiesApi.createEntity(entityMapper.toEntityVO(productOffering), generalProperties.getTenant());
+		createEntity(entityMapper.toEntityVO(productOffering), generalProperties.getTenant());
 	}
 
 	public List<ProductOffering> findProductOfferings() {
@@ -144,12 +147,12 @@ public class ProductCatalogRepository extends NgsiLdBaseRepository {
 	}
 
 	public Optional<ProductOffering> getProductOffering(String id) {
-		HttpResponse<EntityVO> entityVOHttpResponse = entitiesApi.retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
+		HttpResponse<EntityVO> entityVOHttpResponse = retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
 		return entityVOHttpResponse.getBody().map(entityVO -> entityMapper.fromEntityVO(entityVO, ProductOffering.class));
 	}
 
 	public void createProductOfferingPrice(ProductOfferingPrice productOfferingPrice) {
-		entitiesApi.createEntity(entityMapper.toEntityVO(productOfferingPrice), generalProperties.getTenant());
+		createEntity(entityMapper.toEntityVO(productOfferingPrice), generalProperties.getTenant());
 	}
 
 	public List<ProductOfferingPrice> findProductOfferingPrices() {
@@ -178,12 +181,12 @@ public class ProductCatalogRepository extends NgsiLdBaseRepository {
 	}
 
 	public Optional<ProductOfferingPrice> getProductOfferingPrice(String id) {
-		HttpResponse<EntityVO> entityVOHttpResponse = entitiesApi.retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
+		HttpResponse<EntityVO> entityVOHttpResponse = retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
 		return entityVOHttpResponse.getBody().map(entityVO -> entityMapper.fromEntityVO(entityVO, ProductOfferingPrice.class));
 	}
 
 	public void createProductSpecification(ProductSpecification productSpecification) {
-		entitiesApi.createEntity(entityMapper.toEntityVO(productSpecification), generalProperties.getTenant());
+		createEntity(entityMapper.toEntityVO(productSpecification), generalProperties.getTenant());
 	}
 
 	public List<ProductSpecification> findProductSpecifications() {
@@ -212,12 +215,12 @@ public class ProductCatalogRepository extends NgsiLdBaseRepository {
 	}
 
 	public Optional<ProductSpecification> getProductSpecification(String id) {
-		HttpResponse<EntityVO> entityVOHttpResponse = entitiesApi.retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
+		HttpResponse<EntityVO> entityVOHttpResponse = retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
 		return entityVOHttpResponse.getBody().map(entityVO -> entityMapper.fromEntityVO(entityVO, ProductSpecification.class));
 	}
 
 	public void createProductSpecificationCharacteristic(ProductSpecificationCharacteristic productSpecificationCharacteristic) {
-		entitiesApi.createEntity(entityMapper.toEntityVO(productSpecificationCharacteristic), generalProperties.getTenant());
+		createEntity(entityMapper.toEntityVO(productSpecificationCharacteristic), generalProperties.getTenant());
 	}
 
 	public List<ProductSpecificationCharacteristic> findProductSpecificationCharacteristic() {
@@ -246,12 +249,12 @@ public class ProductCatalogRepository extends NgsiLdBaseRepository {
 	}
 
 	public Optional<ProductSpecificationCharacteristic> getProductSpecificationCharacteristic(String id) {
-		HttpResponse<EntityVO> entityVOHttpResponse = entitiesApi.retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
+		HttpResponse<EntityVO> entityVOHttpResponse = retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
 		return entityVOHttpResponse.getBody().map(entityVO -> entityMapper.fromEntityVO(entityVO, ProductSpecificationCharacteristic.class));
 	}
 
 	public void createBundleProductSpecification(BundleProductSpecification bundleProductSpecification) {
-		entitiesApi.createEntity(entityMapper.toEntityVO(bundleProductSpecification), generalProperties.getTenant());
+		createEntity(entityMapper.toEntityVO(bundleProductSpecification), generalProperties.getTenant());
 	}
 
 	public List<BundleProductSpecification> findBundleProductSpecification() {
@@ -280,12 +283,12 @@ public class ProductCatalogRepository extends NgsiLdBaseRepository {
 	}
 
 	public Optional<BundleProductSpecification> getBundleProductSpecification(String id) {
-		HttpResponse<EntityVO> entityVOHttpResponse = entitiesApi.retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
+		HttpResponse<EntityVO> entityVOHttpResponse = retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
 		return entityVOHttpResponse.getBody().map(entityVO -> entityMapper.fromEntityVO(entityVO, BundleProductSpecification.class));
 	}
 
 	public void createPricingLogicAlgorithm(PricingLogicAlgorithm pricingLogicAlgorithm) {
-		entitiesApi.createEntity(entityMapper.toEntityVO(pricingLogicAlgorithm), generalProperties.getTenant());
+		createEntity(entityMapper.toEntityVO(pricingLogicAlgorithm), generalProperties.getTenant());
 	}
 
 	public List<PricingLogicAlgorithm> findPricingLogicAlgorithms() {
@@ -314,12 +317,12 @@ public class ProductCatalogRepository extends NgsiLdBaseRepository {
 	}
 
 	public Optional<PricingLogicAlgorithm> getPricingLogicAlgorithm(String id) {
-		HttpResponse<EntityVO> entityVOHttpResponse = entitiesApi.retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
+		HttpResponse<EntityVO> entityVOHttpResponse = retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
 		return entityVOHttpResponse.getBody().map(entityVO -> entityMapper.fromEntityVO(entityVO, PricingLogicAlgorithm.class));
 	}
 
 	public void createProductSpecificationCharacteristicValueUse(ProductSpecificationCharacteristicValueUse productSpecificationCharacteristicValueUse) {
-		entitiesApi.createEntity(entityMapper.toEntityVO(productSpecificationCharacteristicValueUse), generalProperties.getTenant());
+		createEntity(entityMapper.toEntityVO(productSpecificationCharacteristicValueUse), generalProperties.getTenant());
 	}
 
 	public List<ProductSpecificationCharacteristicValueUse> findProductSpecificationCharacteristicValueUses() {
@@ -348,12 +351,12 @@ public class ProductCatalogRepository extends NgsiLdBaseRepository {
 	}
 
 	public Optional<ProductSpecificationCharacteristicValueUse> getProductSpecificationCharacteristicValueUse(String id) {
-		HttpResponse<EntityVO> entityVOHttpResponse = entitiesApi.retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
+		HttpResponse<EntityVO> entityVOHttpResponse = retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
 		return entityVOHttpResponse.getBody().map(entityVO -> entityMapper.fromEntityVO(entityVO, ProductSpecificationCharacteristicValueUse.class));
 	}
 
 	public void createBundleProductOffering(BundleProductOffering bundleProductOffering) {
-		entitiesApi.createEntity(entityMapper.toEntityVO(bundleProductOffering), generalProperties.getTenant());
+		createEntity(entityMapper.toEntityVO(bundleProductOffering), generalProperties.getTenant());
 	}
 
 	public List<BundleProductOffering> findBundleProductOfferings() {
@@ -381,17 +384,16 @@ public class ProductCatalogRepository extends NgsiLdBaseRepository {
 	}
 
 	public Optional<TaxItem> getTaxItem(String id) {
-		HttpResponse<EntityVO> entityVOHttpResponse = entitiesApi.retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
+		HttpResponse<EntityVO> entityVOHttpResponse = retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
 		return entityVOHttpResponse.getBody().map(entityVO -> entityMapper.fromEntityVO(entityVO, TaxItem.class));
 	}
 
 	public void createTaxItem(TaxItem taxItem) {
-		entitiesApi.createEntity(entityMapper.toEntityVO(taxItem), generalProperties.getTenant());
+		createEntity(entityMapper.toEntityVO(taxItem), generalProperties.getTenant());
 	}
 
-
 	public Optional<BundleProductOffering> getBundleProductOffering(String id) {
-		HttpResponse<EntityVO> entityVOHttpResponse = entitiesApi.retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
+		HttpResponse<EntityVO> entityVOHttpResponse = retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
 		return entityVOHttpResponse.getBody().map(entityVO -> entityMapper.fromEntityVO(entityVO, BundleProductOffering.class));
 	}
 

@@ -6,6 +6,11 @@ import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import lombok.RequiredArgsConstructor;
+import org.awaitility.Awaitility;
+import org.fiware.canismajor.api.EntityApiClient;
+import org.fiware.canismajor.model.EntityTransactionListVO;
+import org.fiware.canismajor.model.EntityTransactionVO;
+import org.fiware.ngsi.api.EntitiesApiTestClient;
 import org.fiware.party.model.CharacteristicVO;
 import org.fiware.party.model.ContactMediumVO;
 import org.fiware.party.model.DisabilityVO;
@@ -76,6 +81,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * PREREQUESITE: Have a docker-setup with the broker running.
@@ -92,6 +98,8 @@ public class PoCIT {
 	private final ProductOfferingApiController productOfferingApiController;
 	private final ProductOfferingPriceApiController productOfferingPriceApiController;
 	private final ProductSpecificationApiController productSpecificationApiController;
+
+	private final EntityApiClient entityApiClient;
 
 	@Test
 	public void test() throws JsonProcessingException, ParseException {
@@ -115,22 +123,44 @@ public class PoCIT {
 		ProductOfferingPriceCreateVO productOfferingPriceCreateVO = getProdProductOfferingPrice();
 		HttpResponse<ProductOfferingPriceVO> productOfferingPriceVOHttpResponse = productOfferingPriceApiController.createProductOfferingPrice(productOfferingPriceCreateVO);
 		assertEquals(HttpStatus.CREATED, productOfferingPriceVOHttpResponse.getStatus(), "POP should have been created.");
-		ProductOfferingPriceVO productOfferingPriceVO = productOfferingPriceVOHttpResponse.body();
+		ProductOfferingPriceVO craneAsAServicePrice = productOfferingPriceVOHttpResponse.body();
 
 		ProductSpecificationCreateVO productSpecificationCreateVO = getProductSpecification(myFancyCompany.getId(), myOtherCompany.getId());
 		HttpResponse<ProductSpecificationVO> productSpecificationHttpResponse = productSpecificationApiController.createProductSpecification(productSpecificationCreateVO);
 		assertEquals(HttpStatus.CREATED, productSpecificationHttpResponse.getStatus(), "Product spec should have been created.");
-		ProductSpecificationVO productSpecificationVO = productSpecificationHttpResponse.body();
+		ProductSpecificationVO craneAsAServiceSpec = productSpecificationHttpResponse.body();
 
 		CategoryCreateVO categoryCreateVO = getCategory();
 		HttpResponse<CategoryVO> categoryVOHttpResponse = categoryApiController.createCategory(categoryCreateVO);
 		assertEquals(HttpStatus.CREATED, categoryVOHttpResponse.getStatus(), "Category should have been created.");
 		CategoryVO smartServiceCategory = categoryVOHttpResponse.body();
 
-		ProductOfferingCreateVO productOfferingCreateVO = getProductOffering(smartServiceCategory.getId(), productOfferingPriceVO.getId(), productSpecificationVO.getId());
+		ProductOfferingCreateVO productOfferingCreateVO = getProductOffering(smartServiceCategory.getId(), craneAsAServicePrice.getId(), craneAsAServiceSpec.getId());
 		HttpResponse<ProductOfferingVO> productOfferingVOHttpResponse = productOfferingApiController.createProductOffering(productOfferingCreateVO);
 		assertEquals(HttpStatus.CREATED, productOfferingVOHttpResponse.getStatus(), "Product offering should have been created.");
+		ProductOfferingVO craneAsAServiceOffering = productOfferingVOHttpResponse.body();
 
+		Awaitility
+				.await("Wait for everything to be written to canis-major.")
+				.atMost(Duration.of(60, ChronoUnit.SECONDS))
+				.until(() -> {
+					try {
+						HttpResponse<EntityTransactionListVO> transactionListVOHttpResponse = entityApiClient.getEntitiesWithTransactions();
+						assertEquals(HttpStatus.OK, transactionListVOHttpResponse.getStatus());
+						EntityTransactionListVO entityTransactionListVO = transactionListVOHttpResponse.body();
+						List<String> idList = entityTransactionListVO.getRecords().stream().map(EntityTransactionVO::entityId).map(URI::toString).toList();
+						assertTrue(idList.contains(myFancyCompany.getId()));
+						assertTrue(idList.contains(earlMustermann.getId()));
+						assertTrue(idList.contains(myOtherCompany.getId()));
+						assertTrue(idList.contains(craneAsAServicePrice.getId()));
+						assertTrue(idList.contains(craneAsAServiceSpec.getId()));
+						assertTrue(idList.contains(smartServiceCategory.getId()));
+						assertTrue(idList.contains(craneAsAServiceOffering.getId()));
+					} catch (Throwable t) {
+						return false;
+					}
+					return true;
+				});
 	}
 
 	private ProductOfferingCreateVO getProductOffering(String categoryId, String priceId, String specId) {

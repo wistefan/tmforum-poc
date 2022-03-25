@@ -13,7 +13,8 @@ import java.util.List;
 public class ReferencesRepository extends NgsiLdBaseRepository {
 
 	public ReferencesRepository(GeneralProperties generalProperties, EntitiesApiClient entitiesApi) {
-		super(generalProperties, entitiesApi);
+		// this repo is only for validating referential integrity and does not change anything, therefor canismajor is not required.
+		super(generalProperties, entitiesApi, null, null);
 	}
 
 	public boolean referenceExists(String id, List<String> acceptedTypes) {

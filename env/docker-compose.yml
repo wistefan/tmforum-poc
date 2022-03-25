@@ -12,7 +12,7 @@ services:
     depends_on:
       - mongo-db
     networks:
-      - default
+      - test-network
     ports:
       - "1026:1026"
     command: -logLevel DEBUG
@@ -30,16 +30,77 @@ services:
       - "27017"
     ports:
       - "27017:27017" # localhost:27017
-    networks:
-      - default
     command: --nojournal
     volumes:
       - mongo-db:/data
+    networks:
+      - test-network
     healthcheck:
       test: |
         host=`hostname --ip-address || echo '127.0.0.1'`;
         mongo --quiet $host/test --eval 'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)' && echo 0 || echo 1
       interval: 5s
 
+  # Hashicorp vault as a wallet
+  vault-server:
+    image: ${VAULT_IMAGE:-quay.io/fiware/vault-ethereum:1.0.1}
+    hostname: vault
+    ports:
+      - "8200:8200"
+    environment:
+      VAULT_ADDR: "http://0.0.0.0:8200"
+      VAULT_DEV_ROOT_TOKEN_ID: "vault-plaintext-root-token"
+    cap_add:
+      - IPC_LOCK
+    networks:
+      - test-network
+
+  # aei and eth
+  aei-contract:
+    image: quay.io/wi_stefan/py-contract:latest
+    hostname: aei-contract
+    networks:
+      - test-network
+    environment:
+      - RPC_ENDPOINT=ganache-cli
+      - RPC_PORT=8545
+    depends_on:
+      - ganache-cli
+
+  ganache-cli:
+    image: trufflesuite/ganache-cli:latest
+    hostname: ganache-cli
+    networks:
+      - test-network
+    ports:
+      - "8545:8545"
+    command: ganache-cli -l 8000000 --gasPrice 0 --account '0x22aabb811efca4e6f4748bd18a46b502fa85549df9fa07da649c0a148d7d5530, 100000000000000000000'
+
+  canis-major:
+    restart: always
+    image: ${CANISMAJOR_IMAGE:-quay.io/fiware/canis-major}
+    hostname: canis-major
+    depends_on:
+      - ganache-cli
+    expose:
+      - "4000"
+    ports:
+      - 4000:4000
+    environment:
+      - MICRONAUT_SERVER_PORT=4000
+      - MICRONAUT_HTTP_SERVICES_NGSI_URL=http://orion:1026
+      - ETHEREUM_CONTRACT_ADDRESS=0x476059cd57800db8eb88f67c2aa38a6fcf8251e0
+      - ETHEREUM_DLT_ADDRESS=ganache-cli:8545
+      - GENERAL_NGSI_TENANT=orion
+      - DEFAULT_ACCOUNT_ENABLED=true
+      # default key derived from the mnemonic in the test definition
+      - DEFAULT_ACCOUNT_PRIVATE_KEY=0x82AC43A26ae509eEf217330C7d862F822fF0CECB
+    networks:
+      - test-network
 volumes:
   mongo-db: ~
+
+
+networks:
+  test-network:
+    driver: bridge

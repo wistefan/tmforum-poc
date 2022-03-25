@@ -1,21 +1,12 @@
 # TMForum API
 
 
-## Datamodel
+## Open points:
 
-Organization:
-
-```json
-{
-  "id": "urn:ngsi-ld:organization:my-org",
-  "type": "Organization",
-  "href": {
-    "type": "Property",
-    "value": "http://link-to-org.com"
-  },
-  "isHeadOffice": 
-    {
-      
-    }
-}
-```
+- Implement patch-operations
+- Assert referential integrity on deletion
+- proper handling for *RefOrValue objects
+- automatic resolution of relationships on get
+- CanisMajor integration on patch/delete
+- forwarding of CanisMajor headers
+- TESTING

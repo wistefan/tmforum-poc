@@ -1,10 +1,14 @@
 package org.fiware.tmforum.repository;
 
+import io.micronaut.cache.annotation.CachePut;
+import io.micronaut.cache.annotation.Cacheable;
 import io.micronaut.http.HttpResponse;
+import org.fiware.canismajor.api.NgsiLdApiClient;
 import org.fiware.ngsi.api.EntitiesApiClient;
 import org.fiware.ngsi.model.EntityListVO;
 import org.fiware.ngsi.model.EntityVO;
 import org.fiware.tmforum.configuration.GeneralProperties;
+import org.fiware.tmforum.domain.CanisMajorMapper;
 import org.fiware.tmforum.domain.EntityMapper;
 import org.fiware.tmforum.domain.TMForumMapper;
 import org.fiware.tmforum.domain.party.TaxDefinition;
@@ -24,23 +28,15 @@ import java.util.stream.Collectors;
 @Singleton
 public class PartyRepository extends NgsiLdBaseRepository {
 
-	private static final List<String> PARTY_TYPES = List.of(Organization.TYPE_ORGANIZATION, Individual.TYPE_INDIVIDUAL);
-
 	private final EntityMapper entityMapper;
 
-	public PartyRepository(GeneralProperties generalProperties, EntitiesApiClient entitiesApi, EntityMapper entityMapper) {
-		super(generalProperties, entitiesApi);
+	public PartyRepository(GeneralProperties generalProperties, EntitiesApiClient entitiesApi, EntityMapper entityMapper, NgsiLdApiClient canisMajorClient, CanisMajorMapper canisMajorMapper) {
+		super(generalProperties, entitiesApi, canisMajorClient, canisMajorMapper);
 		this.entityMapper = entityMapper;
 	}
 
 	public void createOrganization(Organization organization) {
-		entitiesApi.createEntity(entityMapper.toEntityVO(organization), generalProperties.getTenant());
-	}
-
-
-	public boolean partyExists(String id) {
-		HttpResponse<EntityVO> entityVOHttpResponse = entitiesApi.retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
-		return entityVOHttpResponse.getBody().map(EntityVO::getType).filter(PARTY_TYPES::contains).isPresent();
+		createEntity(entityMapper.toEntityVO(organization), generalProperties.getTenant());
 	}
 
 	public void deleteParty(String id) {
@@ -73,16 +69,16 @@ public class PartyRepository extends NgsiLdBaseRepository {
 	}
 
 	public Optional<Organization> getOrganization(String id) {
-		HttpResponse<EntityVO> entityVOHttpResponse = entitiesApi.retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
+		HttpResponse<EntityVO> entityVOHttpResponse = retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
 		return entityVOHttpResponse.getBody().map(entityVO -> entityMapper.fromEntityVO(entityVO, Organization.class));
 	}
 
 	public void createIndividual(Individual individual) {
-		entitiesApi.createEntity(entityMapper.toEntityVO(individual), generalProperties.getTenant());
+		createEntity(entityMapper.toEntityVO(individual), generalProperties.getTenant());
 	}
 
 	public Optional<Individual> getIndividual(String id) {
-		HttpResponse<EntityVO> entityVOHttpResponse = entitiesApi.retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
+		HttpResponse<EntityVO> entityVOHttpResponse = retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
 		return entityVOHttpResponse.getBody().map(entityVO -> entityMapper.fromEntityVO(entityVO, Individual.class));
 	}
 
@@ -113,11 +109,11 @@ public class PartyRepository extends NgsiLdBaseRepository {
 	}
 
 	public void createTaxExemptionCertificate(TaxExemptionCertificate taxExemptionCertificate) {
-		entitiesApi.createEntity(entityMapper.toEntityVO(taxExemptionCertificate), generalProperties.getTenant());
+		createEntity(entityMapper.toEntityVO(taxExemptionCertificate), generalProperties.getTenant());
 	}
 
 	public Optional<TaxExemptionCertificate> getTaxExemptionCertificate(String id) {
-		HttpResponse<EntityVO> entityVOHttpResponse = entitiesApi.retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
+		HttpResponse<EntityVO> entityVOHttpResponse = retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
 		return entityVOHttpResponse.getBody().map(entityVO -> entityMapper.fromEntityVO(entityVO, TaxExemptionCertificate.class));
 	}
 
@@ -148,11 +144,11 @@ public class PartyRepository extends NgsiLdBaseRepository {
 	}
 
 	public void createTaxDefinition(TaxDefinition taxDefinition) {
-		entitiesApi.createEntity(entityMapper.toEntityVO(taxDefinition), generalProperties.getTenant());
+		createEntity(entityMapper.toEntityVO(taxDefinition), generalProperties.getTenant());
 	}
 
 	public Optional<TaxDefinition> getTaxDefinition(String id) {
-		HttpResponse<EntityVO> entityVOHttpResponse = entitiesApi.retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
+		HttpResponse<EntityVO> entityVOHttpResponse = retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
 		return entityVOHttpResponse.getBody().map(entityVO -> entityMapper.fromEntityVO(entityVO, TaxDefinition.class));
 	}
 

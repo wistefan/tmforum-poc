@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.fiware</groupId>
-    <artifactId>temporal-forum-api</artifactId>
+    <artifactId>tm-forum-api</artifactId>
     <version>0.1</version>
 
     <parent>
@@ -64,7 +64,7 @@
 
         <!-- code gen -->
         <version.org.openapitools.generator-maven-plugin>5.1.0</version.org.openapitools.generator-maven-plugin>
-        <version.io.kokuwa.micronaut.codegen>2.2.2-SNAPSHOT</version.io.kokuwa.micronaut.codegen>
+        <version.io.kokuwa.micronaut.codegen>2.3.0</version.io.kokuwa.micronaut.codegen>
 
         <!-- test -->
         <version.org.testcontainers>1.16.3</version.org.testcontainers>
@@ -322,6 +322,38 @@
                             <output>${project.build.directory}</output>
                             <configOptions>
                                 <clientId>ngsi</clientId>
+                                <fullJavaUtil>true</fullJavaUtil>
+                                <useOptional>false</useOptional>
+                                <useGenericResponse>true</useGenericResponse>
+                                <useReferencedSchemaAsDefault>true</useReferencedSchemaAsDefault>
+                                <useLombokGenerated>true</useLombokGenerated>
+                                <introspected>true</introspected>
+                                <useBeanValidation>false</useBeanValidation>
+                                <jacksonDatabindNullable>false</jacksonDatabindNullable>
+                                <supportsAdditionalPropertiesWithComposedSchema>true</supportsAdditionalPropertiesWithComposedSchema>
+                            </configOptions>
+                            <typeMappings>
+                                <typeMapping>java.util.Date=java.time.Instant</typeMapping>
+                            </typeMappings>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>canis-major-api</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>https://raw.githubusercontent.com/FIWARE/CanisMajor/master/api/api.yaml</inputSpec>
+                            <apiPackage>org.fiware.canismajor.api</apiPackage>
+                            <strictSpec>true</strictSpec>
+                            <modelPackage>org.fiware.canismajor.model</modelPackage>
+                            <generateAliasAsModel>true</generateAliasAsModel>
+                            <generatorName>micronaut</generatorName>
+                            <modelNameSuffix>VO</modelNameSuffix>
+                            <output>${project.build.directory}</output>
+                            <configOptions>
+                                <clientId>canis-major</clientId>
                                 <fullJavaUtil>true</fullJavaUtil>
                                 <useOptional>false</useOptional>
                                 <useGenericResponse>true</useGenericResponse>
@@ -596,7 +628,7 @@
                             <extraDirectories>
                                 <paths>
                                     <path>
-                                        <from>LICENSE</from>
+                                        <from>/licenses</from>
                                         <into>/licenses</into>
                                     </path>
                                 </paths>

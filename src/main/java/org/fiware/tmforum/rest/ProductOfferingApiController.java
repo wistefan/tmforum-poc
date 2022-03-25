@@ -10,15 +10,11 @@ import org.fiware.product.model.ProductOfferingCreateVO;
 import org.fiware.product.model.ProductOfferingUpdateVO;
 import org.fiware.product.model.ProductOfferingVO;
 import org.fiware.tmforum.domain.TMForumMapper;
-import org.fiware.tmforum.domain.product.CategoryRef;
-import org.fiware.tmforum.domain.product.ProductSpecificationCharacteristic;
 import org.fiware.tmforum.domain.product.offering.BundleProductOffering;
 import org.fiware.tmforum.domain.product.offering.ProductOffering;
-import org.fiware.tmforum.domain.product.offering.ProductOfferingRelationship;
 import org.fiware.tmforum.repository.ProductCatalogRepository;
 
 import javax.annotation.Nullable;
-import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
