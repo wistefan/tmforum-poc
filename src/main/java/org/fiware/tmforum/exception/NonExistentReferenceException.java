@@ -2,15 +2,11 @@ package org.fiware.tmforum.exception;
 
 public class NonExistentReferenceException extends RuntimeException {
 
-	private final String referencedId;
-
-	public NonExistentReferenceException(String message, String referencedId) {
+	public NonExistentReferenceException(String message) {
 		super(message);
-		this.referencedId = referencedId;
 	}
 
-	public NonExistentReferenceException(String message, Throwable cause, String referencedId) {
+	public NonExistentReferenceException(String message, Throwable cause) {
 		super(message, cause);
-		this.referencedId = referencedId;
 	}
 }

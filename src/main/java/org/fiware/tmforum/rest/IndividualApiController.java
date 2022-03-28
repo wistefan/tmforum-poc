@@ -2,7 +2,7 @@ package org.fiware.tmforum.rest;
 
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.Controller;
-import io.micronaut.http.client.exceptions.HttpClientResponseException;
+import io.reactivex.Single;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.fiware.party.api.IndividualApi;
@@ -10,20 +10,14 @@ import org.fiware.party.model.IndividualCreateVO;
 import org.fiware.party.model.IndividualUpdateVO;
 import org.fiware.party.model.IndividualVO;
 import org.fiware.tmforum.domain.TMForumMapper;
-import org.fiware.tmforum.domain.party.RelatedParty;
 import org.fiware.tmforum.domain.party.TaxExemptionCertificate;
 import org.fiware.tmforum.domain.party.individual.Individual;
-import org.fiware.tmforum.domain.product.ProductSpecificationCharacteristic;
-import org.fiware.tmforum.exception.NonExistentReferenceException;
 import org.fiware.tmforum.repository.PartyRepository;
 
 import javax.annotation.Nullable;
 import javax.validation.Valid;
-import java.net.URI;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Controller
@@ -35,48 +29,61 @@ public class IndividualApiController implements IndividualApi {
 	private final ValidationService validationService;
 
 	@Override
-	public HttpResponse<IndividualVO> createIndividual(@Valid IndividualCreateVO individualCreateVO) {
+	public Single<HttpResponse<IndividualVO>> createIndividual(@Valid IndividualCreateVO individualCreateVO) {
 		IndividualVO individualVO = tmForumMapper.map(individualCreateVO);
 		Individual individual = tmForumMapper.map(individualVO);
-		Optional.ofNullable(individual.getRelatedParty()).ifPresent(validationService::checkReferenceExists);
 
-		List<TaxExemptionCertificate> taxExemptionCertificates = Optional.ofNullable(individual.getTaxExemptionCertificate()).orElseGet(List::of);
-		List<TaxExemptionCertificate> updatedCerts = taxExemptionCertificates.stream().map(partyRepository::getOrCreate).toList();
-		individual.setTaxExemptionCertificate(updatedCerts);
-		partyRepository.createIndividual(individual);
-		return HttpResponse.created(tmForumMapper.map(individual));
-	}
+		Single<Individual> individualSingle = Single.just(individual);
 
-
-	@Override
-	public HttpResponse<Object> deleteIndividual(String id) {
-		try {
-			partyRepository.deleteParty(id);
-			return HttpResponse.noContent();
-		} catch (HttpClientResponseException e) {
-			return HttpResponse.status(e.getStatus());
+		if (individual.getRelatedParty() != null && !individual.getRelatedParty().isEmpty()) {
+			Single<Individual> checkingSingle = validationService.getCheckingSingle(individual.getRelatedParty(), individual);
+			individualSingle = Single.zip(individualSingle, checkingSingle, (p1, p2) -> p1);
 		}
+
+		List<TaxExemptionCertificate> taxExemptionCertificates = individual.getTaxExemptionCertificate();
+		if (taxExemptionCertificates != null && !taxExemptionCertificates.isEmpty()) {
+			Single<List<TaxExemptionCertificate>> taxExemptionCertificatesSingles = Single.zip(taxExemptionCertificates.stream().map(partyRepository::getOrCreate).toList(), t -> Arrays.stream(t).map(TaxExemptionCertificate.class::cast).toList());
+			Single<Individual> updatingSingle = taxExemptionCertificatesSingles
+					.map(updatedTaxExemptions -> {
+						individual.setTaxExemptionCertificate(updatedTaxExemptions);
+						return individual;
+					});
+			individualSingle = Single.zip(individualSingle, updatingSingle, (individual1, individual2) -> individual1);
+		}
+
+		return individualSingle
+				.flatMap(individualToCreate -> partyRepository.createIndividual(individualToCreate).toSingleDefault(individualToCreate))
+				.cast(Individual.class)
+				.map(tmForumMapper::map)
+				.map(HttpResponse::created);
+	}
+
+
+	@Override
+	public Single<HttpResponse<Object>> deleteIndividual(String id) {
+		return partyRepository.deleteParty(id).toSingleDefault(HttpResponse.noContent());
 	}
 
 	@Override
-	public HttpResponse<List<IndividualVO>> listIndividual(@Nullable String fields, @Nullable Integer offset, @Nullable Integer limit) {
-		return HttpResponse.ok(partyRepository.findIndividuals().stream().map(tmForumMapper::map).collect(Collectors.toList()));
-
+	public Single<HttpResponse<List<IndividualVO>>> listIndividual(@Nullable String fields, @Nullable Integer offset, @Nullable Integer limit) {
+		return partyRepository.findIndividuals()
+				.map(List::stream).map(organizationStream -> organizationStream.map(tmForumMapper::map).toList())
+				.map(HttpResponse::ok);
 	}
 
 	@Override
-	public HttpResponse<IndividualVO> patchIndividual(String id, IndividualUpdateVO individual) {
+	public Single<HttpResponse<IndividualVO>> patchIndividual(String id, IndividualUpdateVO individual) {
 		// implement proper patch
 		return null;
 	}
 
 	@Override
-	public HttpResponse<IndividualVO> retrieveIndividual(String id, @Nullable String fields) {
+	public Single<HttpResponse<IndividualVO>> retrieveIndividual(String id, @Nullable String fields) {
 		return partyRepository
 				.getIndividual(id)
 				.map(tmForumMapper::map)
-				.map(HttpResponse::ok)
-				.orElseGet(HttpResponse::notFound);
+				.toSingle()
+				.map(HttpResponse::ok);
 	}
 }
 

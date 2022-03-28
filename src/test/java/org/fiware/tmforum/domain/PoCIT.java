@@ -106,37 +106,37 @@ public class PoCIT {
 
 		OrganizationCreateVO myFancyCompanyCreate = getMyFancyCompany();
 
-		HttpResponse<OrganizationVO> myFancyCompanyCreateResponse = organizationApiController.createOrganization(myFancyCompanyCreate);
+		HttpResponse<OrganizationVO> myFancyCompanyCreateResponse = organizationApiController.createOrganization(myFancyCompanyCreate).blockingGet();
 		assertEquals(HttpStatus.CREATED, myFancyCompanyCreateResponse.getStatus(), "Company should have been created.");
 		OrganizationVO myFancyCompany = myFancyCompanyCreateResponse.body();
 
 		IndividualCreateVO earlMustermannCreate = getIndividualEmployee(myFancyCompany.getId());
-		HttpResponse<IndividualVO> earlMustermannCreateResponse = individualApiController.createIndividual(earlMustermannCreate);
+		HttpResponse<IndividualVO> earlMustermannCreateResponse = individualApiController.createIndividual(earlMustermannCreate).blockingGet();
 		assertEquals(HttpStatus.CREATED, earlMustermannCreateResponse.getStatus(), "Individual should have been created.");
 		IndividualVO earlMustermann = earlMustermannCreateResponse.body();
 
 		OrganizationCreateVO myOtherCompanyCreate = getFancyChildCompany(myFancyCompany.getId(), earlMustermann.getId());
-		HttpResponse<OrganizationVO> myOtherCompanyCreateResponse = organizationApiController.createOrganization(myOtherCompanyCreate);
+		HttpResponse<OrganizationVO> myOtherCompanyCreateResponse = organizationApiController.createOrganization(myOtherCompanyCreate).blockingGet();
 		assertEquals(HttpStatus.CREATED, myOtherCompanyCreateResponse.getStatus(), "Company should have been created.");
 		OrganizationVO myOtherCompany = myOtherCompanyCreateResponse.body();
 
 		ProductOfferingPriceCreateVO productOfferingPriceCreateVO = getProdProductOfferingPrice();
-		HttpResponse<ProductOfferingPriceVO> productOfferingPriceVOHttpResponse = productOfferingPriceApiController.createProductOfferingPrice(productOfferingPriceCreateVO);
+		HttpResponse<ProductOfferingPriceVO> productOfferingPriceVOHttpResponse = productOfferingPriceApiController.createProductOfferingPrice(productOfferingPriceCreateVO).blockingGet();
 		assertEquals(HttpStatus.CREATED, productOfferingPriceVOHttpResponse.getStatus(), "POP should have been created.");
 		ProductOfferingPriceVO craneAsAServicePrice = productOfferingPriceVOHttpResponse.body();
 
 		ProductSpecificationCreateVO productSpecificationCreateVO = getProductSpecification(myFancyCompany.getId(), myOtherCompany.getId());
-		HttpResponse<ProductSpecificationVO> productSpecificationHttpResponse = productSpecificationApiController.createProductSpecification(productSpecificationCreateVO);
+		HttpResponse<ProductSpecificationVO> productSpecificationHttpResponse = productSpecificationApiController.createProductSpecification(productSpecificationCreateVO).blockingGet();
 		assertEquals(HttpStatus.CREATED, productSpecificationHttpResponse.getStatus(), "Product spec should have been created.");
 		ProductSpecificationVO craneAsAServiceSpec = productSpecificationHttpResponse.body();
 
 		CategoryCreateVO categoryCreateVO = getCategory();
-		HttpResponse<CategoryVO> categoryVOHttpResponse = categoryApiController.createCategory(categoryCreateVO);
+		HttpResponse<CategoryVO> categoryVOHttpResponse = categoryApiController.createCategory(categoryCreateVO).blockingGet();
 		assertEquals(HttpStatus.CREATED, categoryVOHttpResponse.getStatus(), "Category should have been created.");
 		CategoryVO smartServiceCategory = categoryVOHttpResponse.body();
 
 		ProductOfferingCreateVO productOfferingCreateVO = getProductOffering(smartServiceCategory.getId(), craneAsAServicePrice.getId(), craneAsAServiceSpec.getId());
-		HttpResponse<ProductOfferingVO> productOfferingVOHttpResponse = productOfferingApiController.createProductOffering(productOfferingCreateVO);
+		HttpResponse<ProductOfferingVO> productOfferingVOHttpResponse = productOfferingApiController.createProductOffering(productOfferingCreateVO).blockingGet();
 		assertEquals(HttpStatus.CREATED, productOfferingVOHttpResponse.getStatus(), "Product offering should have been created.");
 		ProductOfferingVO craneAsAServiceOffering = productOfferingVOHttpResponse.body();
 
@@ -145,9 +145,8 @@ public class PoCIT {
 				.atMost(Duration.of(60, ChronoUnit.SECONDS))
 				.until(() -> {
 					try {
-						HttpResponse<EntityTransactionListVO> transactionListVOHttpResponse = entityApiClient.getEntitiesWithTransactions();
-						assertEquals(HttpStatus.OK, transactionListVOHttpResponse.getStatus());
-						EntityTransactionListVO entityTransactionListVO = transactionListVOHttpResponse.body();
+						EntityTransactionListVO entityTransactionListVO = entityApiClient.getEntitiesWithTransactions().blockingGet();
+//						assertEquals(HttpStatus.OK, transactionListVOHttpResponse.getStatus());
 						List<String> idList = entityTransactionListVO.getRecords().stream().map(EntityTransactionVO::entityId).map(URI::toString).toList();
 						assertTrue(idList.contains(myFancyCompany.getId()));
 						assertTrue(idList.contains(earlMustermann.getId()));

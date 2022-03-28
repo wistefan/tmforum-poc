@@ -3,6 +3,10 @@ package org.fiware.tmforum.repository;
 import io.micronaut.cache.annotation.CachePut;
 import io.micronaut.cache.annotation.Cacheable;
 import io.micronaut.http.HttpResponse;
+import io.reactivex.Completable;
+import io.reactivex.Maybe;
+import io.reactivex.Single;
+import org.checkerframework.checker.units.qual.C;
 import org.fiware.canismajor.api.NgsiLdApiClient;
 import org.fiware.ngsi.api.EntitiesApiClient;
 import org.fiware.ngsi.model.EntityListVO;
@@ -20,6 +24,7 @@ import org.fiware.tmforum.exception.NonExistentReferenceException;
 import javax.inject.Singleton;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -35,184 +40,160 @@ public class PartyRepository extends NgsiLdBaseRepository {
 		this.entityMapper = entityMapper;
 	}
 
-	public void createOrganization(Organization organization) {
-		createEntity(entityMapper.toEntityVO(organization), generalProperties.getTenant());
+	public Completable createOrganization(Organization organization) {
+		return createEntity(entityMapper.toEntityVO(organization), generalProperties.getTenant());
 	}
 
-	public void deleteParty(String id) {
-		entitiesApi.removeEntityById(URI.create(id), generalProperties.getTenant(), null);
+	public Completable deleteParty(String id) {
+		return entitiesApi.removeEntityById(URI.create(id), generalProperties.getTenant(), null);
 	}
 
-	public List<Organization> findOrganizations() {
-		HttpResponse<EntityListVO> entityListVOHttpResponse = entitiesApi.queryEntities(generalProperties.getTenant(),
-				null,
-				null,
-				Organization.TYPE_ORGANIZATION,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				getLinkHeader());
-
-		return entityListVOHttpResponse.getBody()
-				.map(ArrayList::new)
-				.orElseGet(ArrayList::new)
-				.stream()
-				.map(entityVO -> entityMapper.fromEntityVO(entityVO, Organization.class))
-				.collect(Collectors.toList());
+	public Single<List<Organization>> findOrganizations() {
+		return entitiesApi.queryEntities(generalProperties.getTenant(),
+						null,
+						null,
+						Organization.TYPE_ORGANIZATION,
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						getLinkHeader())
+				.map(List::stream)
+				.map(entityVOStream -> entityVOStream.map(entityVO -> entityMapper.fromEntityVO(entityVO, Organization.class)).toList());
 
 	}
 
-	public Optional<Organization> getOrganization(String id) {
-		HttpResponse<EntityVO> entityVOHttpResponse = retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
-		return entityVOHttpResponse.getBody().map(entityVO -> entityMapper.fromEntityVO(entityVO, Organization.class));
+	public Maybe<Organization> getOrganization(String id) {
+		return retrieveEntityById(URI.create(id))
+				.map(entityVO -> entityMapper.fromEntityVO(entityVO, Organization.class));
 	}
 
-	public void createIndividual(Individual individual) {
-		createEntity(entityMapper.toEntityVO(individual), generalProperties.getTenant());
+	public Completable createIndividual(Individual individual) {
+		return createEntity(entityMapper.toEntityVO(individual), generalProperties.getTenant());
 	}
 
-	public Optional<Individual> getIndividual(String id) {
-		HttpResponse<EntityVO> entityVOHttpResponse = retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
-		return entityVOHttpResponse.getBody().map(entityVO -> entityMapper.fromEntityVO(entityVO, Individual.class));
-	}
-
-
-	public List<Individual> findIndividuals() {
-		HttpResponse<EntityListVO> entityListVOHttpResponse = entitiesApi.queryEntities(generalProperties.getTenant(),
-				null,
-				null,
-				Individual.TYPE_INDIVIDUAL,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				getLinkHeader());
-
-		return entityListVOHttpResponse.getBody()
-				.map(ArrayList::new)
-				.orElseGet(ArrayList::new)
-				.stream()
-				.map(entityVO -> entityMapper.fromEntityVO(entityVO, Individual.class))
-				.collect(Collectors.toList());
-
-	}
-
-	public void createTaxExemptionCertificate(TaxExemptionCertificate taxExemptionCertificate) {
-		createEntity(entityMapper.toEntityVO(taxExemptionCertificate), generalProperties.getTenant());
-	}
-
-	public Optional<TaxExemptionCertificate> getTaxExemptionCertificate(String id) {
-		HttpResponse<EntityVO> entityVOHttpResponse = retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
-		return entityVOHttpResponse.getBody().map(entityVO -> entityMapper.fromEntityVO(entityVO, TaxExemptionCertificate.class));
+	public Maybe<Individual> getIndividual(String id) {
+		return retrieveEntityById(URI.create(id))
+				.map(entityVO -> entityMapper.fromEntityVO(entityVO, Individual.class));
 	}
 
 
-	public List<TaxExemptionCertificate> findTaxExemptionCertificates() {
-		HttpResponse<EntityListVO> entityListVOHttpResponse = entitiesApi.queryEntities(generalProperties.getTenant(),
-				null,
-				null,
-				TaxExemptionCertificate.TYPE_TAX_EXEMPTION_CERTIFICATE,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				getLinkHeader());
-
-		return entityListVOHttpResponse.getBody()
-				.map(ArrayList::new)
-				.orElseGet(ArrayList::new)
-				.stream()
-				.map(entityVO -> entityMapper.fromEntityVO(entityVO, TaxExemptionCertificate.class))
-				.collect(Collectors.toList());
+	public Single<List<Individual>> findIndividuals() {
+		return entitiesApi.queryEntities(generalProperties.getTenant(),
+						null,
+						null,
+						Individual.TYPE_INDIVIDUAL,
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						getLinkHeader())
+				.map(List::stream)
+				.map(entityVOStream -> entityVOStream.map(entityVO -> entityMapper.fromEntityVO(entityVO, Individual.class)).toList());
 
 	}
 
-	public void createTaxDefinition(TaxDefinition taxDefinition) {
-		createEntity(entityMapper.toEntityVO(taxDefinition), generalProperties.getTenant());
+	public Completable createTaxExemptionCertificate(TaxExemptionCertificate taxExemptionCertificate) {
+		return createEntity(entityMapper.toEntityVO(taxExemptionCertificate), generalProperties.getTenant());
 	}
 
-	public Optional<TaxDefinition> getTaxDefinition(String id) {
-		HttpResponse<EntityVO> entityVOHttpResponse = retrieveEntityById(URI.create(id), generalProperties.getTenant(), null, null, null, getLinkHeader());
-		return entityVOHttpResponse.getBody().map(entityVO -> entityMapper.fromEntityVO(entityVO, TaxDefinition.class));
+	public Maybe<TaxExemptionCertificate> getTaxExemptionCertificate(String id) {
+		return retrieveEntityById(URI.create(id))
+				.map(entityVO -> entityMapper.fromEntityVO(entityVO, TaxExemptionCertificate.class));
 	}
 
 
-	public List<TaxDefinition> findTaxDefinitions() {
-		HttpResponse<EntityListVO> entityListVOHttpResponse = entitiesApi.queryEntities(generalProperties.getTenant(),
-				null,
-				null,
-				TaxDefinition.TYPE_TAX_DEFINITION,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				null,
-				getLinkHeader());
-
-		return entityListVOHttpResponse.getBody()
-				.map(ArrayList::new)
-				.orElseGet(ArrayList::new)
-				.stream()
-				.map(entityVO -> entityMapper.fromEntityVO(entityVO, TaxDefinition.class))
-				.collect(Collectors.toList());
+	public Single<List<TaxExemptionCertificate>> findTaxExemptionCertificates() {
+		return entitiesApi.queryEntities(generalProperties.getTenant(),
+						null,
+						null,
+						TaxExemptionCertificate.TYPE_TAX_EXEMPTION_CERTIFICATE,
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						getLinkHeader())
+				.map(List::stream)
+				.map(entityVOStream -> entityVOStream.map(entityVO -> entityMapper.fromEntityVO(entityVO, TaxExemptionCertificate.class)).toList());
 
 	}
 
-	public TaxDefinition getOrCreate(TaxDefinition taxDefinition) {
+	public Completable createTaxDefinition(TaxDefinition taxDefinition) {
+		return createEntity(entityMapper.toEntityVO(taxDefinition), generalProperties.getTenant());
+	}
+
+	public Maybe<TaxDefinition> getTaxDefinition(String id) {
+		return retrieveEntityById(URI.create(id))
+				.map(entityVO -> entityMapper.fromEntityVO(entityVO, TaxDefinition.class));
+	}
+
+
+	public Single<List<TaxDefinition>> findTaxDefinitions() {
+		return entitiesApi.queryEntities(generalProperties.getTenant(),
+						null,
+						null,
+						TaxDefinition.TYPE_TAX_DEFINITION,
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						null,
+						getLinkHeader())
+				.map(List::stream)
+				.map(entityVOStream -> entityVOStream.map(entityVO -> entityMapper.fromEntityVO(entityVO, TaxDefinition.class)).toList());
+
+	}
+
+	public Single<TaxDefinition> getOrCreate(TaxDefinition taxDefinition) {
 		Optional<URI> optionalID = Optional.ofNullable(taxDefinition.getId());
 		if (optionalID.isPresent()) {
 			return getTaxDefinition(optionalID.get().toString())
-					.orElseThrow(() ->
-							new NonExistentReferenceException(String.format("The referenced tax definition with id %s does not exists.",
-									optionalID.get()),
-									optionalID.get().toString()));
+					.toSingle();
+
 		} else {
 			URI specID = URI.create(String.format(TMForumMapper.ID_TEMPLATE, TaxDefinition.TYPE_TAX_DEFINITION, UUID.randomUUID()));
 			taxDefinition.setId(specID);
-			createTaxDefinition(taxDefinition);
-			return taxDefinition;
+			return createTaxDefinition(taxDefinition).toSingleDefault(taxDefinition);
 		}
 	}
 
-	public TaxExemptionCertificate getOrCreate(TaxExemptionCertificate taxExemptionCertificate) {
+	public Single<TaxExemptionCertificate> getOrCreate(TaxExemptionCertificate taxExemptionCertificate) {
 		Optional<URI> optionalCertID = Optional.ofNullable(taxExemptionCertificate.getId());
 		if (optionalCertID.isPresent()) {
 			return getTaxExemptionCertificate(optionalCertID.get().toString())
-					.orElseThrow(() ->
-							new NonExistentReferenceException(String.format("The referenced tax exemption cert with id %s does not exists.",
-									optionalCertID.get()),
-									optionalCertID.get().toString()));
+					.toSingle();
 		} else {
 			URI specID = URI.create(String.format(TMForumMapper.ID_TEMPLATE, TaxExemptionCertificate.TYPE_TAX_EXEMPTION_CERTIFICATE, UUID.randomUUID()));
 			taxExemptionCertificate.setId(specID);
 
 			List<TaxDefinition> taxDefinitions = Optional.ofNullable(taxExemptionCertificate.getTaxDefinition()).orElseGet(List::of);
-			List<TaxDefinition> updatedTaxDefinitions = taxDefinitions.stream().map(this::getOrCreate).toList();
-			taxExemptionCertificate.setTaxDefinition(updatedTaxDefinitions);
+			Single<List<TaxDefinition>> taxDefSingle = Single.zip(taxDefinitions.stream().map(this::getOrCreate).toList(), t -> Arrays.stream(t).map(TaxDefinition.class::cast).toList());
 
-			createTaxExemptionCertificate(taxExemptionCertificate);
-			return taxExemptionCertificate;
+			return taxDefSingle
+					.map(updatedTaxDefinitions -> {
+						taxExemptionCertificate.setTaxDefinition(updatedTaxDefinitions);
+						return taxExemptionCertificate;
+					})
+					.flatMap(cert -> createTaxExemptionCertificate(cert).toSingleDefault(cert));
 		}
 	}
-
 }

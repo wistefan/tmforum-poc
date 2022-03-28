@@ -2,6 +2,10 @@ micronaut:
   application:
     name: ${project.artifactId}
 
+  caches:
+    entities:
+      maximumSize: 1000
+
   server:
     port: 7070
 
