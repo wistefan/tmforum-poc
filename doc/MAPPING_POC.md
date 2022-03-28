@@ -9,6 +9,7 @@ Involved credentials:
 
 
 AWS is mapped directly to an TMForum Organization: [Json](./TMForum_ORG.md)
+
 CPU and Switch are mapped as a Product Spec, but can be an Resource, too. The Service-Offering is mapped to a product offering, referencing the specs:
 [Full-json](./TMForum_OFFER.md)
 
