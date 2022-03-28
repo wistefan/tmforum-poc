@@ -16,4 +16,3 @@
 - forwarding of CanisMajor headers
 - transaction error handling(e.g. clean up if one of the calls fails)
 - TESTING
-
