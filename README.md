@@ -1,6 +1,6 @@
 # TMForum API
 
-## Obeservations
+## Observations
 
 - referential integrity checks and inline entity creations lead to (potentially) a lot of requests per single request -> everything has to be non-blocking and parallelized  to not timeout
 - caching is very important for all the same reasons
