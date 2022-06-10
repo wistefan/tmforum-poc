@@ -33,10 +33,10 @@ no direct mapping, not important. Similar to /.well-known in oidc
 Simple rest endpoint to CRUD self-descriptions. Hash of self-description is used as the id. 
 Only difference to plain REST is due to the immutability of self-descriptions. Since only the life-cycle phase is allowed to change([There are
 four possible states for the Self-Description life cycle: “active” (the
-default), “revoked”, “deprecate” and “end-of-life”.](https://gitlab.com/gaia-x/technical-committee/federation-services/federation-service-specifications/-/blob/master/docs/L05_FC_CCF/fc_ccf.md#product-perspective)), put can only be used for this transition. 
+default), “revoked”, “deprecate” and “end-of-life”.](https://gitlab.com/gaia-x/technical-committee/federation-services/federation-service-specifications/-/blob/master/docs/L05_FC_CCF/fc_ccf.md#product-perspective)), PUT can only be used for this transition. 
 
 
-TMForum is more detailed and a advanced, but uses the same concept. Due to the immutability, the implementation that generates self-descriptions out of TMForum resources needs to take care of life-cycle transitions and creation of new self-descriptions in case of change. 
+TMForum is more detailed and a advanced, but uses the same concept. Due to the immutability, the implementation that generates self-descriptions out of TMForum-resources needs to take care of life-cycle transitions and creation of new self-descriptions in case of change. 
 
 ### Example:
 
@@ -61,10 +61,11 @@ TMForum is more detailed and a advanced, but uses the same concept. Due to the i
 ## query - ```/queries```
 
 Supports up to 2? query-languages:
-    - [openCypher](https://opencypher.org/): 
-        * graph-database query-language - implementation of [GQL](https://www.iso.org/standard/76120.html)
-     - [sparql](https://www.w3.org/TR/rdf-sparql-query/)   
-        * (graph) query language for rdf
+* [openCypher](https://opencypher.org/): 
+   * graph-database query-language - implementation of [GQL](https://www.iso.org/standard/76120.html)
+* [sparql](https://www.w3.org/TR/rdf-sparql-query/)   
+   * (graph) query language for rdf
+
 See [Challenges-Section](#graph-structure) for more details.
 
 ## users - ```/users```
