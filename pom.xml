@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.fiware</groupId>
-    <artifactId>tm-forum-api</artifactId>
+    <artifactId>temporal-forum-api</artifactId>
     <version>0.1</version>
 
     <parent>
@@ -64,7 +64,7 @@
 
         <!-- code gen -->
         <version.org.openapitools.generator-maven-plugin>5.1.0</version.org.openapitools.generator-maven-plugin>
-        <version.io.kokuwa.micronaut.codegen>2.3.0</version.io.kokuwa.micronaut.codegen>
+        <version.io.kokuwa.micronaut.codegen>2.2.1</version.io.kokuwa.micronaut.codegen>
 
         <!-- test -->
         <version.org.testcontainers>1.16.3</version.org.testcontainers>
@@ -159,14 +159,6 @@
             <groupId>io.reactivex.rxjava2</groupId>
             <artifactId>rxjava</artifactId>
             <version>2.2.21</version>
-        </dependency>
-        <dependency>
-            <groupId>io.micronaut.rxjava2</groupId>
-            <artifactId>micronaut-rxjava2</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>io.micronaut.rxjava2</groupId>
-            <artifactId>micronaut-rxjava2-http-client</artifactId>
         </dependency>
 
 
@@ -269,46 +261,10 @@
                                 <useOptional>false</useOptional>
                                 <useGenericResponse>true</useGenericResponse>
                                 <useLombokGenerated>true</useLombokGenerated>
-                                <supportAsync>true</supportAsync>
                                 <introspected>true</introspected>
                                 <useBeanValidation>false</useBeanValidation>
                                 <jacksonDatabindNullable>false</jacksonDatabindNullable>
                                 <supportsAdditionalPropertiesWithComposedSchema>true</supportsAdditionalPropertiesWithComposedSchema>
-                                <annotateMethods>true</annotateMethods>
-                            </configOptions>
-                            <typeMappings>
-                                <typeMapping>java.util.Date=java.time.Instant</typeMapping>
-                            </typeMappings>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>openapi-product-catalogue-api</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>${project.basedir}/api/product-catalogue.yaml</inputSpec>
-                            <apiPackage>org.fiware.product.api</apiPackage>
-                            <strictSpec>true</strictSpec>
-                            <modelPackage>org.fiware.product.model</modelPackage>
-                            <generateAliasAsModel>true</generateAliasAsModel>
-                            <generatorName>micronaut</generatorName>
-                            <generateApiTests>false</generateApiTests>
-                            <generateModelTests>false</generateModelTests>
-                            <modelNameSuffix>VO</modelNameSuffix>
-                            <output>${project.build.directory}</output>
-                            <configOptions>
-                                <fullJavaUtil>true</fullJavaUtil>
-                                <useOptional>false</useOptional>
-                                <useGenericResponse>true</useGenericResponse>
-                                <useLombokGenerated>true</useLombokGenerated>
-                                <supportAsync>true</supportAsync>
-                                <introspected>true</introspected>
-                                <useBeanValidation>false</useBeanValidation>
-                                <jacksonDatabindNullable>false</jacksonDatabindNullable>
-                                <supportsAdditionalPropertiesWithComposedSchema>true</supportsAdditionalPropertiesWithComposedSchema>
-                                <annotateMethods>true</annotateMethods>
                             </configOptions>
                             <typeMappings>
                                 <typeMapping>java.util.Date=java.time.Instant</typeMapping>
@@ -334,43 +290,9 @@
                                 <clientId>ngsi</clientId>
                                 <fullJavaUtil>true</fullJavaUtil>
                                 <useOptional>false</useOptional>
-                                <useGenericResponse>false</useGenericResponse>
+                                <useGenericResponse>true</useGenericResponse>
                                 <useReferencedSchemaAsDefault>true</useReferencedSchemaAsDefault>
                                 <useLombokGenerated>true</useLombokGenerated>
-                                <introspected>true</introspected>
-                                <supportAsync>true</supportAsync>
-                                <useBeanValidation>false</useBeanValidation>
-                                <jacksonDatabindNullable>false</jacksonDatabindNullable>
-                                <supportsAdditionalPropertiesWithComposedSchema>true</supportsAdditionalPropertiesWithComposedSchema>
-                            </configOptions>
-                            <typeMappings>
-                                <typeMapping>java.util.Date=java.time.Instant</typeMapping>
-                            </typeMappings>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>canis-major-api</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <inputSpec>https://raw.githubusercontent.com/FIWARE/CanisMajor/master/api/api.yaml</inputSpec>
-                            <apiPackage>org.fiware.canismajor.api</apiPackage>
-                            <strictSpec>true</strictSpec>
-                            <modelPackage>org.fiware.canismajor.model</modelPackage>
-                            <generateAliasAsModel>true</generateAliasAsModel>
-                            <generatorName>micronaut</generatorName>
-                            <modelNameSuffix>VO</modelNameSuffix>
-                            <output>${project.build.directory}</output>
-                            <configOptions>
-                                <clientId>canis-major</clientId>
-                                <fullJavaUtil>true</fullJavaUtil>
-                                <useOptional>false</useOptional>
-                                <useGenericResponse>false</useGenericResponse>
-                                <useReferencedSchemaAsDefault>true</useReferencedSchemaAsDefault>
-                                <useLombokGenerated>true</useLombokGenerated>
-                                <supportAsync>true</supportAsync>
                                 <introspected>true</introspected>
                                 <useBeanValidation>false</useBeanValidation>
                                 <jacksonDatabindNullable>false</jacksonDatabindNullable>
@@ -507,8 +429,7 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
+                <artifactId>maven-jar-plugin</artifactIngsi            <configuration>
                     <archive>
                         <manifest>
                             <addClasspath>true</addClasspath>
@@ -628,7 +549,7 @@
                         <!-- disables the micronaut plugin extension, that breaks the exectuion individual config -->
                         <configuration combine.self="override">
                             <from>
-                                <image>registry.access.redhat.com/ubi8/openjdk-17:1.11-2.1647457802</image>
+                                <image>registry.access.redhat.com/ubi8/openjdk-17:1.11-2</image>
                             </from>
                             <to>
                                 <image>${image.registry}/${image.repository}/${artifactId}</image>
@@ -640,7 +561,7 @@
                             <extraDirectories>
                                 <paths>
                                     <path>
-                                        <from>/licenses</from>
+                                        <from>LICENSE</from>
                                         <into>/licenses</into>
                                     </path>
                                 </paths>
