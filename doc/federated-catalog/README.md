@@ -41,22 +41,22 @@ TMForum is more detailed and a advanced, but uses the same concept. Due to the i
 ### Example:
 
 * **TMForum** - ```POST /entitySpecification```
-        * create entity-spec in db
-        * generate self-description for the entity-spec
-        * set life-cycle phase to "active"
+   * create entity-spec in db
+   * generate self-description for the entity-spec
+   * set life-cycle phase to "active"
 * **Federated-Catalog** - ```GET /self-descriptions/{self_description_hash}```
-        * return self-description of entity-spec
-        * provide life-cycle phase "active"
+   * return self-description of entity-spec
+   * provide life-cycle phase "active"
 * **TMForum** - ```PATCH /entitySpecification/{id}```
-        * change entity-spec in db
-        * generate new self-description for the spec
-        * transition life-cycle phase of previous self-description to ```deprecate```
+   * change entity-spec in db
+   * generate new self-description for the spec
+   * transition life-cycle phase of previous self-description to ```deprecate```
 * **Federated-Catalog** - ```GET /self-descriptions/{OLD_HASH}```
-        * return self-description of entity-spec
-        * provide life-cycle phase "deprecated" 
+   * return self-description of entity-spec
+   * provide life-cycle phase "deprecated" 
 * **Federated-Catalog** - ```GET /self-descriptions/{NEW_HASH}```
-        * return self-description of entity-spec
-        * provide life-cycle phase "active" 
+   * return self-description of entity-spec
+   * provide life-cycle phase "active" 
 
 ## query - ```/queries```
 
