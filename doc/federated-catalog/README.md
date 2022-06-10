@@ -89,7 +89,7 @@ within Gaia-X. The certification information for participants is managed
 by the IAM services by WP1[3] and issued in the form of Verifiable
 Credentials.
 
-The participants api is similar to TMForum's [Party-API](https://tmf-open-api-table-documents.s3.eu-west-1.amazonaws.com/OpenApiTable/4.0.0/swagger/TMF632-Party-v4.0.0.swagger.json). The participant maps to the ```Organization``` in TMForum. Both APIs support REST-CRUD, with the same exception on updates due to the [Lifecycle](#lifecycle-mapping).
+The Participants-API is similar to TMForum's [Party-API](https://tmf-open-api-table-documents.s3.eu-west-1.amazonaws.com/OpenApiTable/4.0.0/swagger/TMF632-Party-v4.0.0.swagger.json). The participant maps to the ```Organization``` in TMForum. Both APIs support REST-CRUD, with the same exception on updates due to the [Lifecycle](#lifecycle-mapping).
 
 See [Challenges](#user-handling) for open questions in regards to this endpoint.
 
@@ -111,11 +111,11 @@ This indicates that users will also be stored as some kind of self-description. 
 
 ## verfication - ```/verification/self-descriptions```
  
-Convinience endpoint for verifing the syntax of a self-description.
+Convenience endpoint for verifying the syntax of a self-description.
 
 ## session - ```/sessions```
 
-Seems to be a fragment from IAM, no further documentation.
+Seems to be a fragment from IAM, no further documentation exists.
 
 # Challenges
 
@@ -135,21 +135,21 @@ deprecated (e.g., replaced by a newer version), whereas the
 Self-Description for the Service Offering (in that version) is still
 active.
 
-Thus, mapping will be easy(naming can provide confusion, but no technical issues). TMForum resources will have a 1-1...* relationship to self-descriptions, 1 self-description for each update.
+Thus, mapping will be easy(naming can provide confusion, but no technical issues). TMForum resources will have a 1-1...* relationship to self-descriptions, one self-description for each update.
 
 ## Graph structure 
 
-The spec requires a graph-structure for the self-descirptions: [Product Perspective](https://gitlab.com/gaia-x/technical-committee/federation-services/federation-service-specifications/-/blob/master/docs/L05_FC_CCF/fc_ccf.md#product-perspective)
+The spec requires a graph-structure for the self-descriptions: [Product Perspective](https://gitlab.com/gaia-x/technical-committee/federation-services/federation-service-specifications/-/blob/master/docs/L05_FC_CCF/fc_ccf.md#product-perspective)
 > The Self-Description Graph contains the information imported from the
 Self-Descriptions that are known to the Catalogue and in an “active”
 life cycle state. The Self-Description Graph allows for complex queries
 across Self-Descriptions.
 
 Since [NGSI-LD](https://docbox.etsi.org/isg/cim/open/Latest%20release%20NGSI-LD%20API%20for%20public%20comment.pdf) relationships can be seen as a graph-structure, it might be possible to keep the self-description graph inside NGSI-LD. 
-To fully work with the federated-catalog, this requires:
+To fully work with the Federated Catalog, this requires:
 
 * the TMForum-Application to porperly maintain the graph(relatively easy)
-* the Federated-Catalog implementation to translate graph-queries into NGSI-LD queries(possible in theory, maybe challanging, needs to be investigated)
+* the Federated Catalog implementation to translate graph-queries into NGSI-LD queries(possible in theory, maybe challanging, needs to be investigated)
 
 ## Unclarity on Participant/User-representation as self-description
 
@@ -168,7 +168,7 @@ While the spec suggests that participants and users should be self-descriptions,
     ]
 }
 ```
-No self-description at all, even though the description says: 
+No self-description at all, even though the description(in the [specification document](https://gitlab.com/gaia-x/technical-committee/federation-services/federation-service-specifications/-/blob/master/docs/L05_FC_CCF/fc_ccf.md#Self-Description-Life-cycle)) says: 
 > A role is stored as a Verifiable Credentials (VC) of a user. 
 
 ### Participant as defined by the API:
@@ -190,7 +190,7 @@ There are (as of now) 3 potential sources of users:
 
 ### Federated Catalog without IAM
 
-The users are created inside the catalog, through the [users-endpoint](#users---users). No special handling required for the Federated Catalog, but they need to be translated into ```individuals``` on TMForum. When connected to an ```organization```, this maybe needs to be reflected into the self-description of the ```Participant```. The schemas inside the API suggest that the users are not part of the self-description, but that seems weird from a consistency and trust point of view.
+The users are created inside the catalog, through the [users-endpoint](#users---users). No special handling required for the Federated Catalog, but they need to be translated into ```individuals``` on TMForum. When connected to an ```organization```, this maybe needs to be reflected into the self-description of the ```Participant``` or added as a VC to the ```User```. The schemas inside the API suggest that the users are not part of the self-description, but that seems weird from a consistency and trust point of view.
 
 ### Federated Catalog with IAM
 
