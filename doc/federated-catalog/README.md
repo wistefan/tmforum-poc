@@ -4,7 +4,7 @@ This document contains a short analysis of the federated catalog api(GAIA-X) in 
 
 > **TLDR:** Both APIs follow a normal REST-approach, with TMForum being much more detailed on the concrete resources. The federated catalog doesnt care about concrete data, but only
 > about their representation in form of self-descriptions and the life-cycle of a self-description. 
-> While most parts are compatible, 43 challenges where identified:
+> While most parts are compatible, 4 challenges where identified:
 > 
 > * [Life-Cycle Mapping](#lifecycle-mapping): TMForum handles the lifecycle of its resources, Federated Catalog lifecycle of self-descriptions - easy to solve
 > * [Graph-Structure](#graph-structure): Federated Catalog enforces the usage of graph-structure and graph-query languages. TMForum does not provide rich querying-functionality, but if NGSI-LD will be used as a connection, the graph-queries need to be translated into NGSI-LD queries. TMForum implementation needs to create graph-structures(f.e. NGSI-Relationships)
