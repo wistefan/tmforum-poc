@@ -154,6 +154,7 @@ To fully work with the Federated Catalog, this requires:
 ## Unclarity on Participant/User-representation as self-description
 
 While the spec suggests that participants and users should be self-descriptions, the APIs schema does not reflect this properly. 
+
 ### User as defined by the API:
 ```json
 {
@@ -180,7 +181,7 @@ No self-description at all, even though the description(in the [specification do
   "self-description": "string"
 }
 ```
-```id```, ```name``` and ```public-key``` are either duplicates from the self-description or break the chain of trust. Participant has no way to control or verfy its assigned users(can be solved f.e. with a VC on the user). 
+```id```, ```name``` and ```public-key``` are either duplicates from the self-description or break the chain of trust. Participant has no way to control or verify its assigned users(can be solved f.e. with a VC on the user). 
 
 ## User handling
 
