@@ -187,7 +187,7 @@ No self-description at all, even though the description(in the [specification do
 
 Since the Federated Catalog is mixing IAM with its datamodel, some kind of user-federation between the systems will be required.
 
-There are (as of now) 3 potential sources of users:
+There are (as of now) three potential sources of users:
 
 ### Federated Catalog without IAM
 
